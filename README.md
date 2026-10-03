@@ -1,122 +1,37 @@
 # IdleGuard
 
-IdleGuard helps prevent unwanted idle timeouts or logouts by simulating your selected keyboard or mouse activity.
+IdleGuard simulates keyboard or mouse activity at a chosen interval to help keep your computer active.
 
-## Features
+## Download
 
-- Adjustable interval input in seconds
-- Start and stop controls
-- Settings menu with Options and Exit
-- Configurable keyboard key (defaults to Left Shift) and mouse controls for nudging or moving to a saved screen point; both restore the cursor afterward
-- Windows idle-time display and a two-second check for whether selected activity advances the last-input timestamp
-- Dark-themed Windows UI
-- Custom application icon
-- EXE build support with PyInstaller
+Open the repository's **Releases** page and download `IdleGuard.exe` from the latest release. GitHub also displays automatically generated source archives; those are not needed to run the application.
 
-Windows exposes the time since the last input, but does not identify which application caused it. The inactivity check reports whether the last-input timestamp advanced during the selected-method test; other input arriving during that test can also advance it.
+## Using IdleGuard
 
-## Project icon
+1. Enter how often IdleGuard should simulate activity, in seconds. The default is 240 seconds.
+2. Select **Start** to begin or **Stop** to end the simulation.
+3. To change the activity method, open **Settings > Options**.
 
-The app is configured to use the selected icon: `keystroke2.ico`.
+## Options
 
-## Requirements
+- **Keyboard press:** Enable keyboard activity, then select **Change...** and press the key you want IdleGuard to send. Left Shift is selected by default.
+- **Mouse Movement:** Enable mouse activity and choose **Nudge and return** or **Saved point and return**. Both modes return the pointer to its original position after moving.
+- **Saved point:** Enter screen coordinates, or select **Use cursor position** and move the pointer to the desired location during the three-second countdown.
+- **Check selected method:** Sends the selected activity once and checks whether Windows' last-input timestamp advances. The displayed system idle time refreshes every second.
 
-- Python 3.11+
-- Windows 10/11
-- Tkinter
-- PyAutoGUI
-- PyInstaller
+Windows reports when input last occurred but does not identify which application caused it. Other keyboard or mouse input during the check may also advance the timestamp, and application or system policies can still affect timeout behavior.
 
-## Set up the virtual environment
+Close the Options window to return to the main screen. Use **Settings > Exit** or close the main window to stop IdleGuard and exit.
 
-From the project folder:
+## Versioning and releases
 
-```bat
-cd /d "%USERPROFILE%\source\repos\Keystrokes"
-.\.venv\Scripts\activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+Releases use semantic version tags in `MAJOR.MINOR.PATCH` format, such as `v1.0.0`. Increase the patch number for fixes, the minor number for backward-compatible features, and the major number for breaking changes.
+
+To publish a version, push your changes to GitHub, then create and push a tag for the commit you want to release:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
 ```
 
-## Run the app locally
-
-```bat
-cd /d "%USERPROFILE%\source\repos\Keystrokes"
-.\.venv\Scripts\activate
-python app.py
-```
-
-## Build the EXE
-
-Build the Windows executable directly from the application entry point:
-
-```bat
-cd /d "%USERPROFILE%\source\repos\Keystrokes"
-.\.venv\Scripts\activate
-python -m PyInstaller --noconfirm --clean --name "IdleGuard" --icon "keystroke2.ico" app.py
-```
-
-The output will be created in the `dist\` folder.
-
-## Build and publish with a publisher name
-
-Before publishing, define the application identity that will appear to users on Windows and in the digital signature.
-
-```bat
-set "APP_NAME=IdleGuard"
-set "PUBLISHER_NAME=Your Company Name"
-set "PUBLISHER_URL=https://your-company.example"
-```
-
-Use these values when building the package or installer:
-
-```bat
-cd /d "%USERPROFILE%\source\repos\Keystrokes"
-.\.venv\Scripts\activate
-python -m PyInstaller --noconfirm --clean --name "%APP_NAME%" --icon "keystroke2.ico" app.py
-```
-
-If you distribute the app via an installer, keep the publisher name consistent with the certificate subject and your application metadata.
-
-## Code-sign the EXE (Authenticode signature)
-
-To make sure the file is clearly your program, sign it with an Authenticode code-signing certificate. The publisher name should match the certificate subject or the company name used in the certificate.
-
-### Option 1: Use a certificate from a trusted certificate authority
-
-```bat
-cd /d "%USERPROFILE%\source\repos\Keystrokes"
-.\.venv\Scripts\activate
-signtool sign /n "%PUBLISHER_NAME%" /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 "dist\%APP_NAME%.exe"
-```
-
-### Option 2: Use a certificate file
-
-```bat
-cd /d "%USERPROFILE%\source\repos\Keystrokes"
-.\.venv\Scripts\activate
-signtool sign /f "C:\Path\To\Your\Certificate.pfx" /p "YOUR_CERT_PASSWORD" /n "%PUBLISHER_NAME%" /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 "dist\%APP_NAME%.exe"
-```
-
-> Store `.pfx` files and passwords securely. Do not commit them to source control or share them in public documentation.
-
-### Option 3: Create a temporary self-signed test certificate
-
-```powershell
-New-SelfSignedCertificate -CertStoreLocation Cert:\CurrentUser\My -Type CodeSigningCert -Subject "CN=Your Company Name"
-```
-
-Then export the certificate to a `.pfx` file and sign the EXE with the same `signtool` command above.
-
-> A self-signed certificate is okay for testing, but users may see a trust warning unless the certificate is installed on their machine or a trusted certificate authority signs it.
-
-## Optional: package for distribution
-
-To create a more polished published build, wrap the signed executable in an installer such as Inno Setup or WiX. Set the installer publisher name to the same value as `PUBLISHER_NAME` so the Windows installation experience matches the signed app identity.
-
-## Notes
-
-- Run with appropriate Windows permissions.
-- Use responsibly to avoid unintended keyboard or mouse activity.
-- If you want to redistribute the app, use a real code-signing certificate from a trusted certificate authority.
-- Keep certificates, passwords, and private keys out of the repository and out of public documentation.
+GitHub Actions builds the Windows executable and creates a release named with that tag. The release includes one downloadable application file, `IdleGuard.exe`. Use a new tag for each release, for example `v1.0.1` or `v1.1.0`.
